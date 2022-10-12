@@ -1,6 +1,6 @@
 <div align="center">
 
-# asdf-slides [![Build](https://github.com/maaslalani/asdf-slides/actions/workflows/build.yml/badge.svg)](https://github.com/maaslalani/asdf-slides/actions/workflows/build.yml) [![Lint](https://github.com/maaslalani/asdf-slides/actions/workflows/lint.yml/badge.svg)](https://github.com/maaslalani/asdf-slides/actions/workflows/lint.yml)
+# asdf-slides [![Build](https://github.com/airtonix/asdf-slides/actions/workflows/build.yml/badge.svg)](https://github.com/airtonix/asdf-slides/actions/workflows/build.yml) [![Lint](https://github.com/airtonix/asdf-slides/actions/workflows/lint.yml/badge.svg)](https://github.com/airtonix/asdf-slides/actions/workflows/lint.yml)
 
 
 [slides](https://github.com/maaslalani/slides) plugin for the [asdf version manager](https://asdf-vm.com).
@@ -14,13 +14,6 @@
 - [Contributing](#contributing)
 - [License](#license)
 
-# Dependencies
-
-**TODO: adapt this section**
-
-- `bash`, `curl`, `tar`: generic POSIX utilities.
-- `SOME_ENV_VAR`: set this environment variable in your shell config to load the correct version of tool x.
-
 # Install
 
 Plugin:
@@ -28,7 +21,7 @@ Plugin:
 ```shell
 asdf plugin add slides
 # or
-asdf plugin add slides https://github.com/maaslalani/asdf-slides.git
+asdf plugin add slides https://github.com/airtonix/asdf-slides.git
 ```
 
 slides:
@@ -54,7 +47,7 @@ install & manage versions.
 
 Contributions of any kind welcome! See the [contributing guide](contributing.md).
 
-[Thanks goes to these contributors](https://github.com/maaslalani/asdf-slides/graphs/contributors)!
+[Thanks goes to these contributors](https://github.com/airtonix/asdf-slides/graphs/contributors)!
 
 # License
 

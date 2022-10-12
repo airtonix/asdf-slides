@@ -2,21 +2,19 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for slides.
 GH_REPO="https://github.com/maaslalani/slides"
 TOOL_NAME="slides"
 TOOL_TEST="slides --help"
 
 fail() {
-  echo -e "asdf-$TOOL_NAME: $*"
+  echo -e "asdf-${TOOL_NAME}: $*"
   exit 1
 }
 
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if slides is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
-  curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
+  curl_opts=("${curl_opts[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}")
 fi
 
 sort_versions() {
@@ -25,14 +23,12 @@ sort_versions() {
 }
 
 list_github_tags() {
-  git ls-remote --tags --refs "$GH_REPO" |
+  git ls-remote --tags --refs "${GH_REPO}" |
     grep -o 'refs/tags/.*' | cut -d/ -f3- |
     sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
 list_all_versions() {
-  # TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-  # Change this function if slides has other means of determining installable versions.
   list_github_tags
 }
 
@@ -40,12 +36,16 @@ download_release() {
   local version filename url
   version="$1"
   filename="$2"
+  processor=$(get_machine_processor)
+  os=$(get_machine_os)
 
-  # TODO: Adapt the release URL convention for slides
-  url="$GH_REPO/archive/v${version}.tar.gz"
+  [ -f "${filename}" ] || {
+    url="${GH_REPO}/releases/download/v${version}/${TOOL_NAME}_${version}_$(get_machine_os)_$(get_machine_processor).tar.gz"
 
-  echo "* Downloading $TOOL_NAME release $version..."
-  curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+    echo "* Downloading ${TOOL_NAME} release ${version} (${os}-${processor})..."
+
+    curl "${curl_opts[@]}" -o "${filename}" -C - "${url}" || fail "Could not download ${url}"
+  }
 }
 
 install_version() {
@@ -53,22 +53,39 @@ install_version() {
   local version="$2"
   local install_path="${3%/bin}/bin"
 
-  if [ "$install_type" != "version" ]; then
-    fail "asdf-$TOOL_NAME supports release installs only"
+  if [ "${install_type}" != "version" ]; then
+    fail "asdf-${TOOL_NAME} supports release installs only"
   fi
 
   (
-    mkdir -p "$install_path"
-    cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
+    mkdir -p "${install_path}"
+    cp -r "${ASDF_DOWNLOAD_PATH}"/* "${install_path}"
 
-    # TODO: Assert slides executable exists.
     local tool_cmd
-    tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
-    test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
+    tool_cmd="$(echo "${TOOL_TEST}" | cut -d' ' -f1)"
+    test -x "${install_path}/${tool_cmd}" || fail "Expected ${install_path}/${tool_cmd} to be executable."
 
-    echo "$TOOL_NAME $version installation was successful!"
+    echo "${TOOL_NAME} ${version} installation was successful!"
   ) || (
-    rm -rf "$install_path"
-    fail "An error occurred while installing $TOOL_NAME $version."
+    rm -rf "${install_path}"
+    fail "An error occurred while installing ${TOOL_NAME} ${version}."
   )
+}
+
+get_machine_os() {
+  case "${OSTYPE}" in
+  darwin*) echo "darwin" ;;
+  linux*) echo "linux" ;;
+  *) echo "${OSTYPE}" ;;
+  esac
+}
+
+get_machine_processor() {
+  KERNEL=$(uname -m)
+  case "${KERNEL}" in
+  x86_64*) echo 'amd64' ;;
+  i686*) echo '386' ;;
+  aarch64*) echo 'arm64' ;;
+  *) echo "${KERNEL}" ;;
+  esac
 }
